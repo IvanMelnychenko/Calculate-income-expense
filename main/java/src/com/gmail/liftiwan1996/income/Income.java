@@ -1,4 +1,4 @@
-package com.gmail.liftiwan1996.Income;
+package com.gmail.liftiwan1996.income;
 
 public interface Income {
 
