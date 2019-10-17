@@ -5,31 +5,20 @@ public class ExpenseServiceImpl implements Expense {
 
   public double expense;
 
-
   public double checkExpense(String category, double expense) {
     if (NewExpense.FOOD.name.equals(category)) {
-      addExpenseFood(expense);
+      addExpense(expense);
     } else if (NewExpense.HOME.name.equals(category)) {
-      addExpenseHome(expense);
+      addExpense(expense);
     } else if (NewExpense.TRANSPORT.name.equals(category)) {
-      addExpenseTransport(expense);
+      addExpense(expense);
     }
-    return this.expense = expense;
+    return expense;
   }
 
 
   @Override
-  public double addExpenseFood(double expense) {
-    return expense;
-  }
-
-  @Override
-  public double addExpenseHome(double expense) {
-    return expense;
-  }
-
-  @Override
-  public double addExpenseTransport(double expense) {
-    return expense;
+  public double addExpense(double expense) {
+    return this.expense = this.expense + expense;
   }
 }
