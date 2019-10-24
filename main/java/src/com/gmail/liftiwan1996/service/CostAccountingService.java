@@ -1,114 +1,142 @@
 package com.gmail.liftiwan1996.service;
 
 import com.gmail.liftiwan1996.expense.Expense;
-import com.gmail.liftiwan1996.expense.ExpenseServiceImpl;
-import com.gmail.liftiwan1996.income.SalaryServiceImpl;
+import com.gmail.liftiwan1996.income.Income;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class CostAccountingService {
 
-  private ExpenseServiceImpl expenseService = new ExpenseServiceImpl();
-  private SalaryServiceImpl salaryService = new SalaryServiceImpl();
-  private CurrencyServiceImpl currencyService = new CurrencyServiceImpl();
-  private ListExpense listExpense = new ListExpense();
-  private ListIncome listIncome = new ListIncome();
-  public String category;
-  public double sumCurrency;
-  public LocalDate inputDate;
-  public LocalDate checkDate;
-  public long period;
-
+  private int sumExpense;
+  private int sumIncome;
+  private LocalDate inputDate;
+  private LocalDate checkDate;
+  private long period;
+  private String category;
+  private String currency;
+  private List<Expense> listExpense = new ArrayList<>();
+  private List<Income> listIncome = new ArrayList<>();
   DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d/M/yyyy");
-  LocalDate today = LocalDate.now();
 
   public void expenseOrIncome() {
-    boolean isCategory = true;
     Scanner sc = new Scanner(System.in);
-    while (isCategory) {
+    int i = 0;
+    while (true) {
       System.out.println("Input, what you want to count (Income or Expense or Result)");
-      category = sc.nextLine();
+    category = sc.nextLine();
       if (category.equals("Result")) {
         break;
       }
       if (NewAccountingCost.EXPENSE.name.equals(category)) {
-        calculateExpense();
+        mainExpense();
       } else if (NewAccountingCost.INCOME.name.equals(category)) {
-        calculateIncome();
+        mainIncome();
       }
     }
   }
 
-  public double calculateExpense() {
+  public void mainExpense() {
+    Expense expense = new Expense();
+    String expensetext = typeOfExpense();
+    expense.setCategory(expensetext);
+    calculateExpense();
+    if (currency.equals(NewCurrency.GRIVNA.name)) {
+      expense.setExpenseGrivna(sumExpense);
+    }
+    if (currency.equals(NewCurrency.DOLLAR.name)) {
+      expense.setExpenseDollar(sumExpense);
+    }
+    if (currency.equals(NewCurrency.EURO.name)) {
+      expense.setExpenseEuro(sumExpense);
+    }
+    inputDate();
+    expense.setDate(inputDate);
+    listExpense.add(expense);
+  }
+
+  public void mainIncome() {
+    Income income = new Income();
+    calculateIncome();
+    if (currency.equals(NewCurrency.GRIVNA.name)) {
+      income.setIncomeGrivna(sumIncome);
+    }
+    if (currency.equals(NewCurrency.DOLLAR.name)) {
+      income.setIncomeDollar(sumIncome);
+    }
+    if (currency.equals(NewCurrency.EURO.name)) {
+      income.setIncomeEuro(sumIncome);
+    }
+    inputDate();
+    income.setIncomedate(inputDate);
+    listIncome.add(income);
+  }
+
+  public String typeOfExpense() {
     Scanner sc = new Scanner(System.in);
+    String expenseType= "";
+    System.out.println("Which type of expense do you want to count (Food or Transport or Home)?");
+    expenseType = sc.nextLine();
+    return  expenseType;
+  }
+  public int calculateExpense() {
     Scanner sq = new Scanner(System.in);
-    boolean isExpense = true;
-    String expense = "";
-    double sumExpense = 0;
-
-    while (isExpense) {
-      System.out.println("Which type of expense do you want to count (Food or Transport or Home or Result)?");
-      expense = sc.nextLine();
-      if (expense.equals("Result")) {
-        isExpense = false;
-        break;
-      }
-      System.out.println("Input your expense, please");
-      sumExpense = sq.nextDouble();
-      expenseService.checkExpense(expense, sumExpense);
-    }
-    return currencyService.currency = expenseService.expense;
+    System.out.println("Input your expense with type of currency, please, for example 11 (Grivna or Dollar Euro)");
+    String expenseWithCurrency = sq.nextLine();
+    String [] partOfExpense = expenseWithCurrency.split(" ");
+    sumExpense = Integer.parseInt(partOfExpense[0]);
+    currency = partOfExpense[1];
+    return sumExpense;
   }
 
-
-  public double calculateIncome() {
+  public int calculateIncome() {
     Scanner sc = new Scanner(System.in);
-    System.out.println("Input your salary, please");
-    return currencyService.currency = salaryService.addSalary(sc.nextDouble());
-  }
-
-  public double typeOfCurrency() {
-    Scanner sc = new Scanner(System.in);
-    System.out.println("Input in which currency do you want to count?");
-    String currency = sc.nextLine();
-    sumCurrency = currencyService.checkCurrency(currency);
-    if (category.equals("Expense")) {
-      listExpense.setExpense(sumCurrency);
-      listExpense.setCurrency(currency);
-    }
-   /* if(category.equals("Income")){
-      listIncome.setIncome(sumCurrency);
-    }*/
-    return sumCurrency;
+    System.out.println("Input your salary with type of currency, please, for example 11 (Grivna or Dollar Euro)");
+    String incomeWithCurrency = sc.nextLine();
+    String [] partOfIncome = incomeWithCurrency.split(" ");
+    sumIncome = Integer.parseInt(partOfIncome[0]);
+    currency = partOfIncome[1];
+    return sumIncome;
   }
 
   public void inputDate() {
     Scanner sc = new Scanner(System.in);
     System.out.println("Please input date your " + category + " in format d/M/yyyy");
     inputDate = LocalDate.parse(sc.nextLine(), formatter);
-    checkDate();
   }
 
   public void checkDate() {
+    LocalDate today = LocalDate.now();
     Scanner sc = new Scanner(System.in);
-    System.out.println("For what period do you want see your " + category + " in days");
+    System.out.println("For what period do you want see expense and income in days");
     period = sc.nextLong();
-    if (category.equals("Expense")) {
-      listExpense.setDays(period);
-    }
-
     checkDate = today.minusDays(period);
-    if (inputDate.isAfter(checkDate)) {
-      typeOfCurrency();
-    } else {
-      sumCurrency = 0;
-    }
   }
 
-  @Override
-  public String toString() {
-    return "Your " + category + " is " + sumCurrency + " for " + period + " days";
+  public long getPeriod() {
+    return period;
+  }
+
+  public LocalDate getCheckDate() {
+    return checkDate;
+  }
+
+  public List<Expense> getListExpense() {
+    return listExpense;
+  }
+
+  public void setListExpense(List<Expense> listExpense) {
+    this.listExpense = listExpense;
+  }
+
+  public List<Income> getListIncome() {
+    return listIncome;
+  }
+
+  public void setListIncome(List<Income> listIncome) {
+    this.listIncome = listIncome;
   }
 }
 
